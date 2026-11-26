@@ -4,11 +4,11 @@
 import "@pagefind/default-ui/css/ui.css";
 ---
 
-<site-search class="ms-auto" id="search">
+<site-search id="search">
 	<button
 		aria-keyshortcuts="/"
 		aria-label="Search posts"
-		class="flex h-9 w-9 items-center justify-center rounded-md ring-zinc-400 transition-all hover:ring-2 sm:w-auto sm:gap-2 sm:px-2"
+		class="site-search-trigger"
 		data-open-modal
 		disabled
 		title="Search posts (/)"
@@ -29,7 +29,7 @@ import "@pagefind/default-ui/css/ui.css";
 			<path d="M0 0h24v24H0z" stroke="none"></path>
 			<path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6"></path>
 		</svg>
-		<kbd aria-hidden="true" class="hidden text-xs opacity-60 sm:block">/</kbd>
+		<span>Search</span><kbd aria-hidden="true">/</kbd>
 	</button>
 	<dialog
 		aria-label="search"

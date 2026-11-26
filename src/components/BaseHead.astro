@@ -4,6 +4,7 @@ import type { SiteMeta } from "@/types";
 import { siteConfig } from "@/site-config";
 
 import "../styles/global.css";
+import "../styles/micro.css";
 
 type Props = SiteMeta;
 
@@ -18,11 +19,18 @@ const socialImageURL = new URL(ogImage ? ogImage : "/social-card.png", Astro.url
 <meta charset="utf-8" />
 <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
 <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+<link as="font" crossorigin="anonymous" href="/fonts/geist.woff2" rel="preload" type="font/woff2" />
+<link
+	as="font"
+	crossorigin="anonymous"
+	href="/fonts/geist-mono.woff2"
+	rel="preload"
+	type="font/woff2"
+/>
 <title>{siteTitle}</title>
 
 {/* Icons / Favicon */}
-<link href="/favicon.ico" rel="icon" sizes="any" />
-<link href="/icon.svg" rel="icon" type="image/svg+xml" />
+<link href="/favicon.svg" rel="icon" type="image/svg+xml" />
 <link href="/apple-touch-icon.png" rel="apple-touch-icon" />
 <link href="/manifest.webmanifest" rel="manifest" />
 <link href={canonicalURL} rel="canonical" />
@@ -69,7 +77,7 @@ const socialImageURL = new URL(ogImage ? ogImage : "/social-card.png", Astro.url
 
 {/* Webmentions */}
 {
-	siteConfig.webmentions && (
+	siteConfig.webmentions?.link && (
 		<>
 			<link href={siteConfig.webmentions.link} rel="webmention" />
 			{siteConfig.webmentions.pingback && (

@@ -1,14 +1,11 @@
 ---
 import type { CollectionEntry } from "astro:content";
-
 import Flashcards from "./Flashcards.astro";
 import { getReadingEntries } from "@/data/reading";
 import "../../styles/reading.css";
-
 interface Props {
 	posts: CollectionEntry<"post">[];
 }
-
 const entries = getReadingEntries(Astro.props.posts);
 const tags = [...new Set(entries.flatMap((entry) => entry.tags))].sort();
 const sections: { title: string; entries: typeof entries }[] = [];
@@ -24,95 +21,100 @@ const modes = [
 ];
 ---
 
-<section aria-labelledby="reading-title" class="reading mt-16" data-reading>
-	<p class="mb-2 text-xs text-accent">Three ways into the same material</p>
-	<h2 class="title mb-6 text-xl" id="reading-title">Choose how you want to read</h2>
+<section class="reading" aria-labelledby="reading-title" data-reading>
+	<div class="reading-section-heading">
+		<h2 id="reading-title">Latest posts</h2>
+		<a class="text-link" href="/posts/">See all posts</a>
+	</div>
+	<p class="reading-introduction">Choose how you want to read.</p>
 	<div
-		aria-label="Reading experience"
 		class="reading-choices"
 		data-reading-controls
 		hidden
 		role="group"
+		aria-label="Reading experience"
 	>
 		{
 			modes.map((mode) => (
 				<button
+					type="button"
+					data-reading-mode={mode.id}
 					aria-controls={`reading-${mode.id}`}
 					aria-pressed={mode.id === "index" ? "true" : "false"}
-					data-reading-mode={mode.id}
-					type="button"
+					title={mode.description}
 				>
-					<strong>{mode.title}</strong>
-					<span>{mode.description}</span>
+					{mode.title}
+					<span class="sr-only"> — {mode.description}</span>
 				</button>
 			))
 		}
 	</div>
-	<p aria-live="polite" class="sr-only" data-reading-status></p>
+	<p class="sr-only" data-reading-status aria-live="polite"></p>
 	<noscript
-		><p class="mb-6">
-			Browse the index and chapters below. Enable JavaScript for the interactive study deck.
+		><p>
+			Browse the index and chapters below. Enable JavaScript to study with interactive flashcards.
 		</p></noscript
 	>
 	<div data-reading-panels>
 		<section
-			aria-labelledby="index-title"
+			id="reading-index"
 			class="reading-panel"
 			data-reading-panel="index"
-			id="reading-index"
+			aria-labelledby="index-title"
 		>
-			<div class="reading-heading">
-				<h3 class="font-semibold text-accent-2" id="index-title">Field index</h3>
-				<span class="text-xs">{entries.length} notes to explore</span>
-			</div>
+			<h3 id="index-title" class="sr-only">Field index</h3>
 			<div class="reading-filters" data-index-controls hidden>
 				<label class="reading-search"
-					>Find a term
-					<input
-						autocomplete="off"
-						data-index-search
-						placeholder="Search titles, notes, or tags…"
+					><span class="sr-only">Find a term</span><input
+						name="term"
 						type="search"
-					/>
-				</label>
+						data-index-search
+						autocomplete="off"
+						placeholder="Find a term…"
+					/></label
+				>
 				<label
-					>Topic
-					<select data-index-topic
+					><span class="sr-only">Topic</span><select name="topic" data-index-topic
 						><option value="">All topics</option>{
 							tags.map((tag) => <option value={tag}>{tag}</option>)
 						}</select
-					>
-				</label>
+					></label
+				>
 				<label
-					>Sort
-					<select data-index-sort
+					><span class="sr-only">Sort</span><select name="sort" data-index-sort
 						><option value="curated">Reading order</option><option value="az">A–Z by title</option
 						></select
-					>
-				</label>
+					></label
+				>
 			</div>
-			<p aria-live="polite" class="mb-4 text-xs" data-index-count hidden></p>
+			<p class="reading-count" data-index-count aria-live="polite" hidden></p>
 			<div class="reading-index" data-index-grid>
 				{
 					entries.map((entry) => (
 						<a
 							class="reading-note"
 							data-index-entry
-							data-tags={JSON.stringify(entry.tags)}
 							data-term={entry.term}
+							data-tags={JSON.stringify(entry.tags)}
 							href={entry.href}
+							data-astro-prefetch
 						>
-							<span class="reading-note-meta">
+							<div class="reading-note-copy">
 								<>
-									<span>{entry.number}</span>
-									<span>{entry.category}</span>
+									<h4>{entry.term}</h4>
+									<p>{entry.summary}</p>
 								</>
-							</span>
-							<h4>{entry.term}</h4>
-							<p>{entry.summary}</p>
-							<span class="reading-note-link">
-								Read note <span aria-hidden="true">↗</span>
-							</span>
+							</div>
+							<svg
+								class="reading-arrow"
+								aria-hidden="true"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+							>
+								<path d="m9 5 7 7-7 7" />
+							</svg>
 						</a>
 					))
 				}
@@ -127,31 +129,38 @@ const modes = [
 			}
 		</section>
 		<section
-			aria-labelledby="book-title"
+			id="reading-book"
 			class="reading-panel"
 			data-reading-panel="book"
-			id="reading-book"
+			aria-labelledby="book-title"
 		>
 			<div class="reading-heading">
-				<h3 class="font-semibold text-accent-2" id="book-title">Book chapters</h3><span
-					class="text-xs">{entries.length} chapters</span
-				>
+				<h3 id="book-title">Book chapters</h3><span>{entries.length} chapters</span>
 			</div>
-			<p class="mb-6">Read from the beginning, or pick up a chapter that catches your eye.</p>
+			<p class="reading-description">Read from the beginning, or choose a chapter.</p>
 			{
 				sections.map((section) => (
 					<div class="reading-part">
-						<h4 class="mb-2 text-xs text-accent">{section.title}</h4>
+						{sections.length > 1 && <h4 class="reading-part-title">{section.title}</h4>}
 						<ol>
 							{section.entries.map((entry) => (
 								<li>
-									<a class="reading-chapter" href={entry.href}>
-										<span class="text-accent">{entry.number}</span>
+									<a class="reading-chapter" href={entry.href} data-astro-prefetch>
+										<span class="reading-chapter-number">{entry.number}</span>
 										<div>
 											<h5>{entry.title}</h5>
 											<p>{entry.summary}</p>
 										</div>
-										<span aria-hidden="true">→</span>
+										<svg
+											class="reading-arrow"
+											aria-hidden="true"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.5"
+										>
+											<path d="m9 5 7 7-7 7" />
+										</svg>
 									</a>
 								</li>
 							))}
@@ -162,16 +171,15 @@ const modes = [
 			{!entries.length && <p class="reading-empty">Published posts will become your chapters.</p>}
 		</section>
 		<section
-			aria-labelledby="flashcards-title"
+			id="reading-flashcards"
 			class="reading-panel"
 			data-reading-panel="flashcards"
-			id="reading-flashcards"
+			aria-labelledby="flashcards-title"
 		>
 			<Flashcards entries={entries} />
 		</section>
 	</div>
 </section>
-
 <script>
 	import "../../scripts/reading-modes";
 </script>

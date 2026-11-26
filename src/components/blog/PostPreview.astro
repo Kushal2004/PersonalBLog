@@ -1,25 +1,28 @@
 ---
-import type { HTMLTag, Polymorphic } from "astro/types";
+import type { HTMLTag } from "astro/types";
 import type { CollectionEntry } from "astro:content";
-
 import { getPostSortDate } from "@/data/post";
-
 import FormattedDate from "../FormattedDate.astro";
-
-type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & {
+interface Props {
+	as?: HTMLTag;
 	post: CollectionEntry<"post">;
 	withDesc?: boolean;
-};
-
-const { as: Tag = "div", post, withDesc = false } = Astro.props;
-const postDate = getPostSortDate(post);
+}
+const { as: Tag = "h3", post, withDesc = false }: Props = Astro.props;
 ---
 
-<FormattedDate class="min-w-[120px] text-gray-600 dark:text-gray-400" date={postDate} />
-<Tag>
-	{post.data.draft && <span class="text-red-500">(Draft) </span>}
-	<a class="cactus-link" data-astro-prefetch href={`/posts/${post.slug}/`}>
-		{post.data.title}
-	</a>
-</Tag>
-{withDesc && <q class="line-clamp-3 italic">{post.data.description}</q>}
+<a class="post-list-card" href={`/posts/${post.slug}/`} data-astro-prefetch>
+	<div>
+		<Tag class="post-list-title">{post.data.draft && <span>Draft · </span>}{post.data.title}</Tag>
+		{withDesc && <p>{post.data.description}</p>}
+		<FormattedDate class="post-list-date" date={getPostSortDate(post)} />
+	</div>
+	<svg
+		class="reading-arrow"
+		aria-hidden="true"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="1.5"><path d="m9 5 7 7-7 7"></path></svg
+	>
+</a>

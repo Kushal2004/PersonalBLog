@@ -42,9 +42,17 @@ Astro Cactus is a simple opinionated starter built with the Astro framework. Use
 - [Astro Icon](https://github.com/natemoo-re/astro-icon) svg icon component
 - [Expressive Code](https://expressive-code.com/) source code and syntax highlighter
 
+## Visual reference
+
+The presentation follows [Kushal's original blog](https://kushal-blog.vercel.app/):
+Geist typography, a 640px container, neutral light/dark colors, and compact single-column cards.
+The Geist and Geist Mono font assets in `public/fonts/` are from that site and are
+distributed under the included SIL Open Font License (`public/fonts/OFL.txt`).
+The reading modes use the same typography and spacing; existing post URLs and content remain available.
+
 ## Reading modes
 
-The home page offers three views of the same published posts, using the existing Cactus theme:
+The home page offers three views of the same published posts, styled to match the original blog:
 
 - **Field index**: search terms and summaries, filter by tag, and sort by reading order or title.
 - **Book chapters**: browse the reading sequence and follow previous/next links at the end of a post.
