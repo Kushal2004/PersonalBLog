@@ -1,6 +1,7 @@
 ---
 import SocialList from "@/components/SocialList.astro";
 import PostPreview from "@/components/blog/PostPreview.astro";
+import ReadingModes from "@/components/blog/ReadingModes.astro";
 import { getAllPosts, sortMDByDate } from "@/data/post";
 import PageLayout from "@/layouts/Base.astro";
 
@@ -62,6 +63,7 @@ const cactusTech: { desc: string; href: string; title: string }[] = [
 		</p>
 		<SocialList />
 	</section>
+	<ReadingModes posts={allPosts} />
 	<section aria-label="Blog post list" class="mt-16">
 		<h2 class="title mb-4 text-xl">Posts</h2>
 		<ul class="space-y-4">

@@ -44,8 +44,14 @@ export default defineConfig({
 	},
 	// https://docs.astro.build/en/guides/prefetch/
 	prefetch: true,
-	// ! Please remember to replace the following site property with your own domain
-	site: "https://astro-cactus.chriswilliams.dev/",
+	// Vercel supplies its domain at build time; SITE_URL supports a custom domain.
+	site:
+		process.env.SITE_URL ??
+		(process.env.VERCEL_PROJECT_PRODUCTION_URL
+			? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+			: process.env.VERCEL_URL
+				? `https://${process.env.VERCEL_URL}`
+				: "http://localhost:4325"),
 	vite: {
 		optimizeDeps: {
 			exclude: ["@resvg/resvg-js"],

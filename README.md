@@ -42,6 +42,36 @@ Astro Cactus is a simple opinionated starter built with the Astro framework. Use
 - [Astro Icon](https://github.com/natemoo-re/astro-icon) svg icon component
 - [Expressive Code](https://expressive-code.com/) source code and syntax highlighter
 
+## Reading modes
+
+The home page offers three views of the same published posts, using the existing Cactus theme:
+
+- **Field index**: search terms and summaries, filter by tag, and sort by reading order or title.
+- **Book chapters**: browse the reading sequence and follow previous/next links at the end of a post.
+- **Flashcards**: reveal notes, swipe or use arrow keys to sort cards, review individual piles, shuffle, undo, and save progress on the current device.
+
+Posts appear automatically. Drafts are excluded from all three views, including during development.
+By default, chapters run from oldest to newest, and cards use the post title and description.
+Use this optional frontmatter to customize a post's reading entry:
+
+```yaml
+reading:
+  order: 1
+  section: "Getting started"
+  term: "Markdown"
+  question: "How do you format a heading?"
+  summary: "Start a line with one or more # characters, followed by a space and the heading."
+```
+
+Explicit `order` values come first. Posts without an order follow by publication date.
+Give consecutive chapters the same `section` to group them together.
+The field index and chapters also work without JavaScript; interactive study requires JavaScript.
+Reading preferences and flashcard piles use browser local storage and remain usable if storage is unavailable.
+
+For this checkout's lockfile, use pnpm 8 (for example `npx pnpm@8.15.9 install --frozen-lockfile`).
+Run `pnpm check`, `pnpm build`, then `pnpm preview --host 127.0.0.1 --port 4325`
+to review the production build locally at <http://127.0.0.1:4325/> before deployment.
+
 ## Demo 💻
 
 Check out the [Demo](https://astro-cactus.chriswilliams.dev/), hosted on Netlify
@@ -149,6 +179,15 @@ This theme/template doesn't include a specific solution due to there being a num
 You may be asked to included a snippet inside the **HEAD** tag of your website when setting it up, which can be found in `src/layouts/Base.astro`. Alternatively, you could add the snippet in `src/components/BaseHead.astro`.
 
 ## Deploy
+
+For Vercel, import `Kushal2004/PersonalBLog` and keep the repository root as the
+project root. The checked-in `vercel.json` builds the static site and Pagefind search
+with the pinned pnpm 8 lockfile. The project uses Node.js 22.
+
+Connect the `main` branch as production so publishing a new post to GitHub
+automatically rebuilds the browser site. Set `SITE_URL` in Vercel only when using a
+custom canonical domain; otherwise the Vercel project domain is used automatically
+for canonical links, the sitemap, and `robots.txt`.
 
 [Astro docs](https://docs.astro.build/en/guides/deploy/) has a great section and breakdown of how to deploy your own Astro site on various platforms and their idiosyncrasies.
 

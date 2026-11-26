@@ -1,0 +1,48 @@
+---
+import { getAllPosts } from "@/data/post";
+import { getReadingEntries } from "@/data/reading";
+
+interface Props {
+	slug: string;
+}
+const entries = getReadingEntries(await getAllPosts());
+const index = entries.findIndex((entry) => entry.id === Astro.props.slug);
+const previous = entries[index - 1];
+const next = entries[index + 1];
+---
+
+{
+	index >= 0 && (
+		<nav
+			aria-label="Chapter navigation"
+			class="mt-12 border-t border-dashed border-textColor/30 pt-6"
+		>
+			<div class="mb-5 flex flex-wrap justify-between gap-3 text-xs">
+				<a class="cactus-link" href="/#book">
+					All book chapters
+				</a>
+				<span>
+					Chapter {index + 1} of {entries.length}
+				</span>
+			</div>
+			<div class="grid gap-6 sm:grid-cols-2">
+				<div>
+					{previous && (
+						<a class="cactus-link block" href={previous.href}>
+							<span class="mb-2 block text-xs text-accent">← Previous chapter</span>
+							{previous.title}
+						</a>
+					)}
+				</div>
+				<div>
+					{next && (
+						<a class="cactus-link block sm:text-right" href={next.href}>
+							<span class="mb-2 block text-xs text-accent">Next chapter →</span>
+							{next.title}
+						</a>
+					)}
+				</div>
+			</div>
+		</nav>
+	)
+}

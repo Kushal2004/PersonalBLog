@@ -23,6 +23,15 @@ const post = defineCollection({
 				.string()
 				.or(z.date())
 				.transform((val) => new Date(val)),
+			reading: z
+				.object({
+					order: z.number().int().positive().optional(),
+					question: z.string().trim().min(1).optional(),
+					section: z.string().trim().min(1).optional(),
+					summary: z.string().trim().min(1).optional(),
+					term: z.string().trim().min(1).optional(),
+				})
+				.optional(),
 			tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
 			title: z.string().max(60),
 			updatedDate: z

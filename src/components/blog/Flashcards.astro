@@ -1,0 +1,122 @@
+---
+import type { ReadingEntry } from "@/data/reading";
+
+interface Props {
+	entries: ReadingEntry[];
+}
+const { entries } = Astro.props;
+---
+
+<div data-flashcards>
+	<div class="reading-heading">
+		<h3 class="font-semibold text-accent-2" id="flashcards-title">Flashcards</h3><span
+			class="text-xs">One idea at a time</span>
+	</div>
+	<p class="mb-6">
+		Recall the idea, reveal the note, then choose a pile. Your progress stays on this device.
+	</p>
+	<div class="reading-deck-tools" data-deck-controls hidden>
+		<label
+			>Card order<select data-deck-order
+				><option value="curated">Reading order</option><option value="az">A–Z by title</option
+				><option value="shuffle">Shuffle</option></select
+			></label
+		>
+		<button class="reading-text-button" data-deck-reset type="button">Reset progress</button>
+	</div>
+	<div class="reading-progress" data-deck-controls hidden>
+		<p aria-live="polite" class="reading-heading">
+			<span data-deck-position></span><span data-deck-round>All cards</span>
+		</p>
+		<progress
+			aria-label="Cards sorted this round"
+			data-deck-progress
+			max={Math.max(entries.length, 1)}
+			value="0"></progress>
+	</div>
+	<div class="reading-card-stage">
+		{
+			entries.map((entry, index) => (
+				<article
+					aria-labelledby={`card-title-${index}`}
+					class="reading-card"
+					data-card
+					data-card-id={entry.id}
+					data-card-title={entry.term}
+					tabindex="0"
+				>
+					<p class="reading-note-meta">
+						<>
+							<span>{entry.number}</span>
+							<span>{entry.category}</span>
+						</>
+					</p>
+					<p class="mb-3 text-xs" data-card-question>
+						{entry.question}
+					</p>
+					<h4 id={`card-title-${index}`}>{entry.term}</h4>
+					<details class="reading-answer" data-card-answer>
+						<summary>Reveal note</summary>
+						<p>{entry.summary}</p>
+						<a class="cactus-link" href={entry.href}>
+							Read the full post <span aria-hidden="true">↗</span>
+						</a>
+					</details>
+				</article>
+			))
+		}
+		<div class="reading-empty" data-deck-finish hidden>
+			<p class="mb-2 text-xs text-accent">Round complete</p>
+			<h4 class="mb-3 text-lg font-semibold text-accent-2" data-deck-finish-title tabindex="-1">
+				You sorted the deck.
+			</h4>
+			<p>Choose a pile below to review, or start another round with all cards.</p>
+		</div>
+		{!entries.length && <p class="reading-empty">Your published posts will become flashcards.</p>}
+	</div>
+	<div
+		aria-label="Sort the current flashcard"
+		class="reading-card-actions"
+		data-deck-controls
+		hidden
+		role="group"
+	>
+		<button data-card-action="need" type="button"
+			><span aria-hidden="true">←</span> Need to learn</button
+		>
+		<button data-card-action="reveal" type="button"
+			><span aria-hidden="true">↑</span> <span data-reveal-label>Learn more</span></button
+		>
+		<button data-card-action="know" type="button">I know <span aria-hidden="true">→</span></button>
+		<button data-card-action="saved" type="button"
+			>Save for later <span aria-hidden="true">↓</span></button
+		>
+	</div>
+	<div class="reading-deck-footer" data-deck-controls hidden>
+		<p class="text-xs">
+			Swipe the card or focus it and use the arrow keys. Space reveals the note.
+		</p>
+		<button class="reading-text-button" data-deck-undo disabled type="button">Undo</button>
+	</div>
+	<div
+		aria-label="Review a flashcard pile"
+		class="reading-piles"
+		data-deck-controls
+		hidden
+		role="group"
+	>
+		<button aria-pressed="true" data-review="all" type="button"
+			>All cards <span>({entries.length})</span></button
+		>
+		<button aria-pressed="false" data-review="need" type="button"
+			>Need to learn <span data-count="need">(0)</span></button
+		>
+		<button aria-pressed="false" data-review="know" type="button"
+			>Known <span data-count="know">(0)</span></button
+		>
+		<button aria-pressed="false" data-review="saved" type="button"
+			>Saved <span data-count="saved">(0)</span></button
+		>
+	</div>
+	<p aria-live="polite" class="sr-only" data-deck-announcement></p>
+</div>

@@ -15,6 +15,8 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.*
+.vercel/
 
 # macOS-specific files
 .DS_Store
@@ -23,3 +25,4 @@ pnpm-debug.log*
 *.pem
 .cache
 .astro
+.vercel

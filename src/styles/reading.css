@@ -1,0 +1,307 @@
+.reading [hidden] {
+	display: none !important;
+}
+.reading button,
+.reading input,
+.reading select {
+	font: inherit;
+}
+.reading button,
+.reading select,
+.reading input {
+	border: 1px solid hsl(var(--theme-text) / 0.3);
+	border-radius: 4px;
+	background: hsl(var(--theme-bg));
+	color: inherit;
+}
+.reading button {
+	cursor: pointer;
+}
+.reading button:disabled {
+	cursor: default;
+	opacity: 0.45;
+}
+.reading :is(button, input, select, a, summary, [tabindex]):focus-visible {
+	outline: 2px solid hsl(var(--theme-accent));
+	outline-offset: 4px;
+}
+.reading :is(button, a) {
+	-webkit-tap-highlight-color: transparent;
+}
+.reading-choices {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.65rem;
+}
+.reading-choices button {
+	padding: 1rem 0.85rem;
+	text-align: left;
+	transition:
+		border-color 0.15s,
+		background-color 0.15s;
+}
+.reading-choices strong {
+	display: block;
+	color: hsl(var(--theme-accent-2));
+	margin-bottom: 0.4rem;
+	font-size: 0.875rem;
+}
+.reading-choices span {
+	display: block;
+	font-size: 0.75rem;
+	line-height: 1.6;
+}
+.reading button[aria-pressed="true"] {
+	border-color: hsl(var(--theme-accent));
+	background: hsl(var(--theme-accent) / 0.07);
+}
+.reading-choices button[aria-pressed="true"] strong {
+	color: hsl(var(--theme-accent));
+}
+.reading button:enabled:hover {
+	border-color: hsl(var(--theme-accent));
+}
+.reading-panel {
+	padding-top: 2rem;
+	scroll-margin-top: 2rem;
+}
+.reading-heading {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 1rem;
+	margin-bottom: 1.25rem;
+}
+.reading-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+.reading label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	font-size: 0.75rem;
+}
+.reading input,
+.reading select {
+	min-height: 2.75rem;
+	padding: 0.5rem 0.6rem;
+	min-width: 0;
+	width: 100%;
+}
+.reading-search {
+	flex: 1 1 14rem;
+}
+.reading-index {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+.reading-note {
+	display: flex;
+	flex-direction: column;
+	border: 1px dashed hsl(var(--theme-text) / 0.3);
+	border-radius: 4px;
+	padding: 1.1rem;
+	text-decoration: none;
+	overflow-wrap: anywhere;
+}
+.reading-note:hover {
+	border-color: hsl(var(--theme-accent));
+}
+.reading-note-meta {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	font-size: 0.7rem;
+	color: hsl(var(--theme-accent));
+	margin-bottom: 1.1rem;
+}
+.reading-note :is(h4),
+.reading-chapter h5 {
+	font-weight: 600;
+	color: hsl(var(--theme-accent-2));
+	line-height: 1.6;
+}
+.reading-note p,
+.reading-chapter p {
+	font-size: 0.75rem;
+	line-height: 1.8;
+	margin-top: 0.5rem;
+}
+.reading-note-link {
+	display: block;
+	color: hsl(var(--theme-link));
+	font-size: 0.75rem;
+	margin-top: auto;
+	padding-top: 1.25rem;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.reading-part + .reading-part {
+	margin-top: 2rem;
+}
+.reading-chapter {
+	display: grid;
+	grid-template-columns: 2ch minmax(0, 1fr) auto;
+	gap: 1rem;
+	border-bottom: 1px dashed hsl(var(--theme-text) / 0.3);
+	padding: 1.25rem 0;
+	text-decoration: none;
+}
+.reading-chapter:hover h5 {
+	text-decoration: underline;
+	text-decoration-color: hsl(var(--theme-link));
+	text-underline-offset: 3px;
+}
+.reading-empty {
+	padding: 2.5rem 1.25rem;
+	border: 1px dashed hsl(var(--theme-text) / 0.3);
+	border-radius: 4px;
+	text-align: center;
+}
+.reading-deck-tools,
+.reading-deck-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1.25rem;
+}
+.reading .reading-text-button {
+	border: 0;
+	padding: 0.5rem 0;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	color: hsl(var(--theme-link));
+	font-size: 0.75rem;
+	background: transparent;
+}
+.reading-progress .reading-heading {
+	margin-bottom: 0.5rem;
+	font-size: 0.75rem;
+}
+.reading progress {
+	display: block;
+	width: 100%;
+	height: 4px;
+	appearance: none;
+	border: 0;
+	color: hsl(var(--theme-accent));
+	background: hsl(var(--theme-text) / 0.15);
+	margin-bottom: 1.25rem;
+}
+.reading progress::-webkit-progress-bar {
+	background: hsl(var(--theme-text) / 0.15);
+}
+.reading progress::-webkit-progress-value {
+	background: hsl(var(--theme-accent));
+}
+.reading progress::-moz-progress-bar {
+	background: hsl(var(--theme-accent));
+}
+.reading-card-stage {
+	overflow: hidden;
+	padding: 5px;
+	margin: -5px -5px 1.25rem;
+}
+.reading-card {
+	padding: 1.5rem;
+	min-height: 17rem;
+	border: 1px solid hsl(var(--theme-text) / 0.3);
+	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background: hsl(var(--theme-bg));
+	touch-action: none;
+	overflow-wrap: anywhere;
+	transition: transform 0.15s;
+}
+.reading-card + .reading-card {
+	margin-top: 1rem;
+}
+.reading[data-enhanced] .reading-card {
+	margin-top: 0;
+}
+.reading-card h4 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.6;
+	color: hsl(var(--theme-accent-2));
+}
+.reading-card .reading-note-meta {
+	margin-bottom: 2rem;
+}
+.reading-answer {
+	margin-top: 1.25rem;
+}
+.reading-answer summary {
+	cursor: pointer;
+	color: hsl(var(--theme-link));
+	font-size: 0.75rem;
+}
+.reading-answer p {
+	margin: 1rem 0;
+	line-height: 1.8;
+}
+.reading-answer a {
+	font-size: 0.75rem;
+}
+.reading-card-actions {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+.reading-card-actions button {
+	padding: 0.8rem 0.4rem;
+	font-size: 0.75rem;
+	min-height: 3rem;
+}
+.reading-piles {
+	border-top: 1px dashed hsl(var(--theme-text) / 0.3);
+	padding-top: 1.25rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.reading-piles button {
+	font-size: 0.75rem;
+	padding: 0.6rem 0.75rem;
+}
+.reading-deck-footer {
+	align-items: baseline;
+}
+@media (max-width: 480px) {
+	.reading-choices {
+		grid-template-columns: 1fr;
+	}
+	.reading-choices button {
+		padding: 0.85rem 1rem;
+	}
+	.reading-choices strong {
+		margin-bottom: 0.15rem;
+	}
+	.reading-index {
+		grid-template-columns: 1fr;
+	}
+	.reading-heading {
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+	.reading-card-actions {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.reading-card {
+		padding: 1.25rem;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.reading * {
+		transition: none !important;
+	}
+}
