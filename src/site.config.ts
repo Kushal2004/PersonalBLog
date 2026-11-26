@@ -49,12 +49,11 @@ export const menuLinks: { path: string; title: string }[] = [
 // https://expressive-code.com/reference/configuration/
 export const expressiveCodeOptions: AstroExpressiveCodeOptions = {
 	styleOverrides: {
-		borderRadius: "6px",
+		borderRadius: "4px",
 		codeFontFamily: '"Geist Mono", ui-monospace, monospace',
 		codeFontSize: "0.875rem",
 		codeLineHeight: "1.5rem",
 		codePaddingInline: "1rem",
-		codePaddingBlock: "1.25rem",
 		frames: {
 			frameBoxShadowCssValue: "none",
 		},

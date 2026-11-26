@@ -1,50 +1,47 @@
-{/* Apply the saved preference before paint, including system mode. */}
+{/* Apply the theme before rendering; the block permits safe script re-execution. */}
 <script is:inline>
 	{
-		let preference;
+		let savedTheme;
 		try {
-			preference = localStorage.getItem("theme");
+			savedTheme = localStorage.getItem("theme");
 		} catch {}
 		document.documentElement.dataset.theme =
-			preference === "light" || preference === "dark"
-				? preference
-				: matchMedia("(prefers-color-scheme: dark)").matches
-					? "dark"
-					: "light";
+			savedTheme === "light" || savedTheme === "dark"
+				? savedTheme
+				: matchMedia("(prefers-color-scheme: light)").matches
+					? "light"
+					: "dark";
 	}
 </script>
+
 <script>
-	const systemDark = matchMedia("(prefers-color-scheme: dark)");
-	function getPreference() {
+	const lightModePref = matchMedia("(prefers-color-scheme: light)");
+	function getUserPref() {
 		try {
-			const value = localStorage.getItem("theme");
-			if (value === "light" || value === "dark") return value;
-		} catch {}
-		return "system";
+			const saved = localStorage.getItem("theme");
+			if (saved === "light" || saved === "dark") return saved;
+		} catch {
+			/* Storage is optional. */
+		}
+		return lightModePref.matches ? "light" : "dark";
 	}
-	function applyTheme(preference: string, remember = false) {
-		const theme =
-			preference === "light" || preference === "dark"
-				? preference
-				: systemDark.matches
-					? "dark"
-					: "light";
+	function setTheme(theme: string) {
+		if (theme !== "light" && theme !== "dark") return;
 		document.documentElement.dataset.theme = theme;
+		const background = getComputedStyle(document.body).getPropertyValue("--theme-bg");
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute("content", theme === "dark" ? "#171717" : "#f5f5f5");
-		if (remember) {
-			try {
-				localStorage.setItem("theme", preference);
-			} catch {}
+			?.setAttribute("content", `hsl(${background})`);
+		try {
+			localStorage.setItem("theme", theme);
+		} catch {
+			/* Storage is optional. */
 		}
 	}
-	applyTheme(getPreference());
-	document.addEventListener("astro:after-swap", () => applyTheme(getPreference()));
+	setTheme(getUserPref());
+	document.addEventListener("astro:after-swap", () => setTheme(getUserPref()));
 	document.addEventListener("theme-change", (event) => {
-		applyTheme((event as CustomEvent<{ theme: string }>).detail.theme, true);
+		setTheme((event as CustomEvent<{ theme: string }>).detail.theme);
 	});
-	systemDark.addEventListener("change", () => {
-		if (getPreference() === "system") applyTheme("system");
-	});
+	lightModePref.addEventListener("change", (event) => setTheme(event.matches ? "light" : "dark"));
 </script>

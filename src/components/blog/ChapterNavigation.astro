@@ -13,8 +13,11 @@ const next = entries[index + 1];
 
 {
 	index >= 0 && (
-		<nav aria-label="Chapter navigation" class="post-chapter-navigation">
-			<div class="mb-5 flex flex-wrap justify-between gap-3 text-sm">
+		<nav
+			aria-label="Chapter navigation"
+			class="mt-12 border-t border-dashed border-textColor/30 pt-6"
+		>
+			<div class="mb-5 flex flex-wrap justify-between gap-3 text-xs">
 				<a class="cactus-link" href="/#book">
 					All book chapters
 				</a>
@@ -25,16 +28,16 @@ const next = entries[index + 1];
 			<div class="grid gap-6 sm:grid-cols-2">
 				<div>
 					{previous && (
-						<a class="chapter-card" href={previous.href}>
-							<span class="chapter-card-label">← Previous chapter</span>
+						<a class="cactus-link block" href={previous.href}>
+							<span class="mb-2 block text-xs text-accent">← Previous chapter</span>
 							{previous.title}
 						</a>
 					)}
 				</div>
 				<div>
 					{next && (
-						<a class="chapter-card sm:text-right" href={next.href}>
-							<span class="chapter-card-label">Next chapter →</span>
+						<a class="cactus-link block sm:text-right" href={next.href}>
+							<span class="mb-2 block text-xs text-accent">Next chapter →</span>
 							{next.title}
 						</a>
 					)}

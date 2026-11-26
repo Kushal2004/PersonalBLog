@@ -1,0 +1,142 @@
+/* Typography and palette only; page and reading layouts stay in their existing styles. */
+@font-face {
+	font-family: "Geist";
+	src: url("/fonts/geist.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Geist Mono";
+	src: url("/fonts/geist-mono.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+}
+:root,
+:root[data-theme="light"] {
+	color-scheme: light;
+	--theme-bg: 0deg 0% 96.0784%;
+	--theme-text: 0deg 0% 25.098%;
+	--theme-link: 0deg 0% 0%;
+	--theme-accent: 0deg 0% 0%;
+	--theme-accent-2: 0deg 0% 0%;
+	--theme-quote: 0deg 0% 9%;
+	--theme-ink: 0 0 0;
+	--theme-code: #431407;
+	--site-sans: "Geist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol", "Noto Color Emoji";
+	--site-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+}
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--theme-bg: 0deg 0% 9.0196%;
+	--theme-text: 0deg 0% 83.1373%;
+	--theme-link: 0deg 0% 100%;
+	--theme-accent: 0deg 0% 100%;
+	--theme-accent-2: 0deg 0% 100%;
+	--theme-quote: 0deg 0% 96.0784%;
+	--theme-ink: 255 255 255;
+	--theme-code: #fed7aa;
+}
+html,
+body {
+	font-family: var(--site-sans);
+	font-size: 16px;
+	line-height: 24px;
+}
+body {
+	color: rgb(var(--theme-ink) / 0.75);
+}
+body :is(button, input, select, textarea) {
+	font-family: inherit;
+}
+body :is(h1, h2, h3, h4, h5, h6) {
+	font-family: var(--site-sans);
+	font-weight: 600;
+}
+#blog-hero h1 {
+	font-size: 30px;
+	line-height: 36px;
+}
+.prose {
+	font-size: 16px;
+	line-height: 28px;
+	--tw-prose-body: hsl(var(--theme-text));
+	--tw-prose-headings: hsl(var(--theme-accent-2));
+	--tw-prose-bold: hsl(var(--theme-accent-2));
+	--tw-prose-links: hsl(var(--theme-accent-2));
+	--tw-prose-quotes: hsl(var(--theme-quote));
+	--tw-prose-code: var(--theme-code);
+}
+.prose p {
+	font-size: 16px;
+	line-height: 28px;
+	margin-block: 20px;
+}
+.prose h1 {
+	font-size: 30px;
+	line-height: 36px;
+}
+.prose h2 {
+	font-size: 24px;
+	line-height: 32px;
+}
+.prose h3 {
+	font-size: 20px;
+	line-height: 32px;
+}
+.prose :is(h4, h5, h6) {
+	font-size: 16px;
+	line-height: 24px;
+}
+.prose :is(h1, h2, h3, h4, h5, h6)::before {
+	content: none;
+}
+.prose :is(code, pre, kbd) {
+	font-family: var(--site-mono);
+}
+.prose :not(pre) > code {
+	font-size: 16px;
+	font-weight: 400;
+	color: var(--theme-code);
+}
+.prose code::before,
+.prose code::after {
+	content: none;
+}
+.prose pre {
+	font-size: 14px;
+	line-height: 24px;
+}
+.reading .reading-choices strong,
+.reading .reading-note h4,
+.reading .reading-chapter h5 {
+	font-size: 16px;
+	line-height: 24px;
+}
+.reading .reading-card h4 {
+	font-size: 24px;
+	line-height: 32px;
+}
+.reading .reading-choices span,
+.reading label,
+.reading .reading-note-meta,
+.reading .reading-note-link,
+.reading .reading-text-button,
+.reading .reading-answer :is(summary, a),
+.reading .reading-card-actions button,
+.reading .reading-piles button {
+	font-size: 14px;
+	line-height: 20px;
+}
+.reading .reading-note p,
+.reading .reading-chapter p {
+	font-size: 14px;
+	line-height: 24px;
+}
+.reading .reading-answer p {
+	font-size: 16px;
+	line-height: 28px;
+}

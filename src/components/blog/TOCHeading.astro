@@ -6,12 +6,16 @@ interface Props {
 }
 
 const {
-	heading: { slug, children, text },
+	heading: { depth, slug, children, text },
 } = Astro.props;
 ---
 
-<li>
-	<a aria-label={`Scroll to section: ${text}`} href={`#${slug}`}>{text}</a>
+<li class={`${depth > 2 ? "ms-2" : ""}`}>
+	<a
+		aria-label={`Scroll to section: ${text}`}
+		class={`block line-clamp-2 hover:text-accent ${depth <= 2 ? "mt-3" : "mt-2 text-[0.6875rem]"}`}
+		href={`#${slug}`}><span class="me-0.5">#</span>{text}</a
+	>
 	{
 		!!children.length && (
 			<ul>
