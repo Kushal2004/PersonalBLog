@@ -68,6 +68,10 @@ Give consecutive chapters the same `section` to group them together.
 The field index and chapters also work without JavaScript; interactive study requires JavaScript.
 Reading preferences and flashcard piles use browser local storage and remain usable if storage is unavailable.
 
+Post navigation and reading controls use short transitions that respect reduced-motion preferences.
+Press `/` while the page has keyboard focus to open indexed search; press `Escape` to close it.
+The shortcut leaves text fields alone so typing a slash does not interrupt a search or other input.
+
 For this checkout's lockfile, use pnpm 8 (for example `npx pnpm@8.15.9 install --frozen-lockfile`).
 Run `pnpm check`, `pnpm build`, then `pnpm preview --host 127.0.0.1 --port 4325`
 to review the production build locally at <http://127.0.0.1:4325/> before deployment.

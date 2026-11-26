@@ -69,6 +69,13 @@
 			button.setAttribute("aria-checked", String(rootInDarkMode()));
 			// Abort signal
 			const { signal } = (this.#controller = new AbortController());
+			document.addEventListener(
+				"astro:page-load",
+				() => {
+					button.setAttribute("aria-checked", String(rootInDarkMode()));
+				},
+				{ signal },
+			);
 
 			// button event
 			button.addEventListener(
@@ -86,7 +93,7 @@
 					// set the aria-checked attribute
 					button.setAttribute("aria-checked", String(rootInDarkMode()));
 				},
-				{ signal }
+				{ signal },
 			);
 		}
 

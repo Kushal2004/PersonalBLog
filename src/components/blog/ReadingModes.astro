@@ -54,119 +54,122 @@ const modes = [
 			Browse the index and chapters below. Enable JavaScript for the interactive study deck.
 		</p></noscript
 	>
-	<section
-		aria-labelledby="index-title"
-		class="reading-panel"
-		data-reading-panel="index"
-		id="reading-index"
-	>
-		<div class="reading-heading">
-			<h3 class="font-semibold text-accent-2" id="index-title">Field index</h3>
-			<span class="text-xs">{entries.length} notes to explore</span>
-		</div>
-		<div class="reading-filters" data-index-controls hidden>
-			<label class="reading-search"
-				>Find a term
-				<input
-					autocomplete="off"
-					data-index-search
-					placeholder="Search titles, notes, or tags…"
-					type="search"
-				/>
-			</label>
-			<label
-				>Topic
-				<select data-index-topic
-					><option value="">All topics</option>{
-						tags.map((tag) => <option value={tag}>{tag}</option>)
-					}</select
-				>
-			</label>
-			<label
-				>Sort
-				<select data-index-sort
-					><option value="curated">Reading order</option><option value="az">A–Z by title</option
-					></select
-				>
-			</label>
-		</div>
-		<p aria-live="polite" class="mb-4 text-xs" data-index-count hidden></p>
-		<div class="reading-index" data-index-grid>
-			{
-				entries.map((entry) => (
-					<a
-						class="reading-note"
-						data-index-entry
-						data-tags={JSON.stringify(entry.tags)}
-						data-term={entry.term}
-						href={entry.href}
+	<div data-reading-panels>
+		<section
+			aria-labelledby="index-title"
+			class="reading-panel"
+			data-reading-panel="index"
+			id="reading-index"
+		>
+			<div class="reading-heading">
+				<h3 class="font-semibold text-accent-2" id="index-title">Field index</h3>
+				<span class="text-xs">{entries.length} notes to explore</span>
+			</div>
+			<div class="reading-filters" data-index-controls hidden>
+				<label class="reading-search"
+					>Find a term
+					<input
+						autocomplete="off"
+						data-index-search
+						placeholder="Search titles, notes, or tags…"
+						type="search"
+					/>
+				</label>
+				<label
+					>Topic
+					<select data-index-topic
+						><option value="">All topics</option>{
+							tags.map((tag) => <option value={tag}>{tag}</option>)
+						}</select
 					>
-						<span class="reading-note-meta">
-							<>
-								<span>{entry.number}</span>
-								<span>{entry.category}</span>
-							</>
-						</span>
-						<h4>{entry.term}</h4>
-						<p>{entry.summary}</p>
-						<span class="reading-note-link">
-							Read note <span aria-hidden="true">↗</span>
-						</span>
-					</a>
+				</label>
+				<label
+					>Sort
+					<select data-index-sort
+						><option value="curated">Reading order</option><option value="az">A–Z by title</option
+						></select
+					>
+				</label>
+			</div>
+			<p aria-live="polite" class="mb-4 text-xs" data-index-count hidden></p>
+			<div class="reading-index" data-index-grid>
+				{
+					entries.map((entry) => (
+						<a
+							class="reading-note"
+							data-index-entry
+							data-tags={JSON.stringify(entry.tags)}
+							data-term={entry.term}
+							href={entry.href}
+						>
+							<span class="reading-note-meta">
+								<>
+									<span>{entry.number}</span>
+									<span>{entry.category}</span>
+								</>
+							</span>
+							<h4>{entry.term}</h4>
+							<p>{entry.summary}</p>
+							<span class="reading-note-link">
+								Read note <span aria-hidden="true">↗</span>
+							</span>
+						</a>
+					))
+				}
+			</div>
+			<p class="reading-empty" data-index-empty hidden>
+				No notes match. Try another term or choose all topics.
+			</p>
+			{
+				!entries.length && (
+					<p class="reading-empty">Published posts will appear here when you add them.</p>
+				)
+			}
+		</section>
+		<section
+			aria-labelledby="book-title"
+			class="reading-panel"
+			data-reading-panel="book"
+			id="reading-book"
+		>
+			<div class="reading-heading">
+				<h3 class="font-semibold text-accent-2" id="book-title">Book chapters</h3><span
+					class="text-xs">{entries.length} chapters</span
+				>
+			</div>
+			<p class="mb-6">Read from the beginning, or pick up a chapter that catches your eye.</p>
+			{
+				sections.map((section) => (
+					<div class="reading-part">
+						<h4 class="mb-2 text-xs text-accent">{section.title}</h4>
+						<ol>
+							{section.entries.map((entry) => (
+								<li>
+									<a class="reading-chapter" href={entry.href}>
+										<span class="text-accent">{entry.number}</span>
+										<div>
+											<h5>{entry.title}</h5>
+											<p>{entry.summary}</p>
+										</div>
+										<span aria-hidden="true">→</span>
+									</a>
+								</li>
+							))}
+						</ol>
+					</div>
 				))
 			}
-		</div>
-		<p class="reading-empty" data-index-empty hidden>
-			No notes match. Try another term or choose all topics.
-		</p>
-		{
-			!entries.length && (
-				<p class="reading-empty">Published posts will appear here when you add them.</p>
-			)
-		}
-	</section>
-	<section
-		aria-labelledby="book-title"
-		class="reading-panel"
-		data-reading-panel="book"
-		id="reading-book"
-	>
-		<div class="reading-heading">
-			<h3 class="font-semibold text-accent-2" id="book-title">Book chapters</h3><span
-				class="text-xs">{entries.length} chapters</span>
-		</div>
-		<p class="mb-6">Read from the beginning, or pick up a chapter that catches your eye.</p>
-		{
-			sections.map((section) => (
-				<div class="reading-part">
-					<h4 class="mb-2 text-xs text-accent">{section.title}</h4>
-					<ol>
-						{section.entries.map((entry) => (
-							<li>
-								<a class="reading-chapter" href={entry.href}>
-									<span class="text-accent">{entry.number}</span>
-									<div>
-										<h5>{entry.title}</h5>
-										<p>{entry.summary}</p>
-									</div>
-									<span aria-hidden="true">→</span>
-								</a>
-							</li>
-						))}
-					</ol>
-				</div>
-			))
-		}
-		{!entries.length && <p class="reading-empty">Published posts will become your chapters.</p>}
-	</section>
-	<section
-		aria-labelledby="flashcards-title"
-		class="reading-panel"
-		data-reading-panel="flashcards"
-		id="reading-flashcards"
-	>
-		<Flashcards entries={entries} />
-	</section>
+			{!entries.length && <p class="reading-empty">Published posts will become your chapters.</p>}
+		</section>
+		<section
+			aria-labelledby="flashcards-title"
+			class="reading-panel"
+			data-reading-panel="flashcards"
+			id="reading-flashcards"
+		>
+			<Flashcards entries={entries} />
+		</section>
+	</div>
 </section>
 
 <script>

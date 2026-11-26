@@ -6,9 +6,12 @@ import "@pagefind/default-ui/css/ui.css";
 
 <site-search class="ms-auto" id="search">
 	<button
-		class="flex h-9 w-9 items-center justify-center rounded-md ring-zinc-400 transition-all hover:ring-2"
+		aria-keyshortcuts="/"
+		aria-label="Search posts"
+		class="flex h-9 w-9 items-center justify-center rounded-md ring-zinc-400 transition-all hover:ring-2 sm:w-auto sm:gap-2 sm:px-2"
 		data-open-modal
 		disabled
+		title="Search posts (/)"
 	>
 		<svg
 			aria-label="search"
@@ -26,6 +29,7 @@ import "@pagefind/default-ui/css/ui.css";
 			<path d="M0 0h24v24H0z" stroke="none"></path>
 			<path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6"></path>
 		</svg>
+		<kbd aria-hidden="true" class="hidden text-xs opacity-60 sm:block">/</kbd>
 	</button>
 	<dialog
 		aria-label="search"
@@ -34,7 +38,8 @@ import "@pagefind/default-ui/css/ui.css";
 		<div class="dialog-frame flex flex-col gap-4 p-6 pt-12 sm:pt-6">
 			<button
 				class="ms-auto cursor-pointer rounded-md bg-zinc-200 p-2 font-semibold dark:bg-zinc-700"
-				data-close-modal>Close</button
+				data-close-modal
+				>Close <span aria-hidden="true" class="text-xs opacity-60">Esc</span></button
 			>
 			{
 				import.meta.env.DEV ? (
@@ -60,6 +65,7 @@ import "@pagefind/default-ui/css/ui.css";
 		private dialog: HTMLDialogElement;
 		private dialogFrame: HTMLDivElement;
 		private openBtn: HTMLButtonElement;
+		private searchUi: { destroy: () => void } | undefined;
 
 		closeModal = () => {
 			if (this.dialog.open) {
@@ -70,7 +76,7 @@ import "@pagefind/default-ui/css/ui.css";
 
 		onWindowClick = (event: MouseEvent) => {
 			// check if it's a link
-			const isLink = "href" in (event.target || {});
+			const isLink = event.target instanceof Element && event.target.closest("a[href]");
 			// make sure the click is either a link or outside of the dialog
 			if (
 				isLink ||
@@ -81,14 +87,26 @@ import "@pagefind/default-ui/css/ui.css";
 		};
 
 		onWindowKeydown = (e: KeyboardEvent) => {
-			// check if it's the / key
-			if (e.key === "/" && !this.dialog.open) {
+			const target = e.target;
+			const editing =
+				target instanceof HTMLElement &&
+				(target.isContentEditable || target.closest("input, textarea, select, [role='textbox']"));
+			if (
+				e.key === "/" &&
+				!e.ctrlKey &&
+				!e.metaKey &&
+				!e.altKey &&
+				!e.isComposing &&
+				!editing &&
+				!this.dialog.open
+			) {
 				this.openModal();
 				e.preventDefault();
 			}
 		};
 
 		openModal = (event?: MouseEvent) => {
+			if (this.dialog.open) return;
 			this.dialog.showModal();
 			this.querySelector("input")?.focus();
 			event?.stopPropagation();
@@ -105,6 +123,9 @@ import "@pagefind/default-ui/css/ui.css";
 			this.openBtn.addEventListener("click", this.openModal);
 			this.openBtn.disabled = false;
 			this.closeBtn.addEventListener("click", this.closeModal);
+			this.dialog.addEventListener("close", () =>
+				window.removeEventListener("click", this.onWindowClick),
+			);
 		}
 
 		connectedCallback() {
@@ -115,19 +136,25 @@ import "@pagefind/default-ui/css/ui.css";
 			if (import.meta.env.DEV) return;
 			const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
 			onIdle(async () => {
+				if (!this.isConnected) return;
 				const { PagefindUI } = await import("@pagefind/default-ui");
-				new PagefindUI({
+				if (!this.isConnected || this.searchUi) return;
+				this.searchUi = new PagefindUI({
 					baseUrl: import.meta.env.BASE_URL,
 					bundlePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/pagefind/",
 					element: "#cactus__search",
 					showImages: false,
 					showSubResults: true,
 				});
+				if (this.dialog.open) this.querySelector("input")?.focus();
 			});
 		}
 
 		disconnectedCallback() {
+			this.searchUi?.destroy();
+			this.searchUi = undefined;
 			window.removeEventListener("keydown", this.onWindowKeydown);
+			window.removeEventListener("click", this.onWindowClick);
 		}
 	}
 
@@ -194,6 +221,37 @@ import "@pagefind/default-ui/css/ui.css";
 </style>
 
 <style>
+	dialog[open] {
+		animation: search-enter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	dialog::backdrop {
+		animation: search-backdrop 200ms ease-out;
+	}
+	@keyframes search-enter {
+		from {
+			opacity: 0;
+			transform: translateY(-8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	@keyframes search-backdrop {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		dialog[open],
+		dialog::backdrop {
+			animation: none;
+		}
+	}
+
 	#cactus__search {
 		--pagefind-ui-primary: theme("colors.accent");
 		--pagefind-ui-text: theme("colors.textColor");

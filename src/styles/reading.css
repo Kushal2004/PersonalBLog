@@ -65,6 +65,10 @@
 	padding-top: 2rem;
 	scroll-margin-top: 2rem;
 }
+.reading [data-reading-panels],
+.reading-card-stage {
+	box-sizing: border-box;
+}
 .reading-heading {
 	display: flex;
 	justify-content: space-between;

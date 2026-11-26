@@ -114,7 +114,7 @@ const url = new URL(Astro.request.url);
 
 		constructor() {
 			super();
-			this.headerEl = document.getElementById("main-header")!;
+			this.headerEl = this.closest("header")!;
 			this.mobileButtonEl = this.querySelector("button") as HTMLButtonElement;
 			this.menuOpen = false;
 

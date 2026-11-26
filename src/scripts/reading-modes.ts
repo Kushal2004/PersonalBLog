@@ -1,11 +1,21 @@
-const reading = document.querySelector<HTMLElement>("[data-reading]");
+import { contentMotion } from "./content-motion";
 
-if (reading) {
+let readingController: AbortController | undefined;
+
+function setupReadingModes() {
+	const reading = document.querySelector<HTMLElement>("[data-reading]");
+	if (!reading || reading.dataset.readingReady === "true") return;
+	reading.dataset.readingReady = "true";
+	readingController?.abort();
+	readingController = new AbortController();
+	const { signal } = readingController;
 	const modes = ["index", "book", "flashcards"];
 	const preferenceKey = "personal-blog-reading-view-v1";
 	const buttons = [...reading.querySelectorAll<HTMLButtonElement>("[data-reading-mode]")];
 	const panels = [...reading.querySelectorAll<HTMLElement>("[data-reading-panel]")];
 	const status = reading.querySelector<HTMLElement>("[data-reading-status]")!;
+	const panelMotion = contentMotion(reading.querySelector<HTMLElement>("[data-reading-panels]")!);
+	let activeMode = "";
 	const stored = () => {
 		try {
 			return localStorage.getItem(preferenceKey) ?? "index";
@@ -13,11 +23,18 @@ if (reading) {
 			return "index";
 		}
 	};
-	const applyMode = (value: string, remember = false) => {
+	const applyMode = (value: string, remember = false, animate = true) => {
 		const mode = modes.includes(value) ? value : "index";
-		panels.forEach((panel) => {
-			panel.hidden = panel.dataset.readingPanel !== mode;
-		});
+		if (mode === activeMode) return;
+		activeMode = mode;
+		panelMotion.update(
+			() => {
+				panels.forEach((panel) => {
+					panel.hidden = panel.dataset.readingPanel !== mode;
+				});
+			},
+			{ animate, target: () => panels.find((panel) => !panel.hidden)! },
+		);
 		buttons.forEach((button) =>
 			button.setAttribute("aria-pressed", String(button.dataset.readingMode === mode)),
 		);
@@ -28,18 +45,26 @@ if (reading) {
 			} catch {
 				/* Storage is optional. */
 			}
-			history.replaceState(null, "", `${location.pathname}${location.search}#${mode}`);
+			history.replaceState(history.state, "", `${location.pathname}${location.search}#${mode}`);
 		}
 	};
 	reading.querySelector<HTMLElement>("[data-reading-controls]")!.hidden = false;
 	reading.dataset.enhanced = "true";
-	applyMode(modes.includes(location.hash.slice(1)) ? location.hash.slice(1) : stored());
+	applyMode(
+		modes.includes(location.hash.slice(1)) ? location.hash.slice(1) : stored(),
+		false,
+		false,
+	);
 	buttons.forEach((button) =>
 		button.addEventListener("click", () => applyMode(button.dataset.readingMode!, true)),
 	);
-	window.addEventListener("hashchange", () => {
-		if (modes.includes(location.hash.slice(1))) applyMode(location.hash.slice(1));
-	});
+	window.addEventListener(
+		"hashchange",
+		() => {
+			if (modes.includes(location.hash.slice(1))) applyMode(location.hash.slice(1));
+		},
+		{ signal },
+	);
 
 	const grid = reading.querySelector<HTMLElement>("[data-index-grid]")!;
 	const notes = [...grid.querySelectorAll<HTMLAnchorElement>("[data-index-entry]")];
@@ -47,6 +72,7 @@ if (reading) {
 	const topic = reading.querySelector<HTMLSelectElement>("[data-index-topic]")!;
 	const sort = reading.querySelector<HTMLSelectElement>("[data-index-sort]")!;
 	const count = reading.querySelector<HTMLElement>("[data-index-count]")!;
+	const indexMotion = contentMotion(grid);
 	const collator = new Intl.Collator(document.documentElement.lang, {
 		sensitivity: "base",
 		numeric: true,
@@ -73,19 +99,27 @@ if (reading) {
 	};
 	reading.querySelector<HTMLElement>("[data-index-controls]")!.hidden = false;
 	count.hidden = false;
-	search.addEventListener("input", updateIndex);
-	topic.addEventListener("change", updateIndex);
-	sort.addEventListener("change", updateIndex);
+	search.addEventListener("input", () => indexMotion.update(updateIndex, { animate: false }));
+	topic.addEventListener("change", () => indexMotion.update(updateIndex));
+	sort.addEventListener("change", () => indexMotion.update(updateIndex));
 	updateIndex();
 
-	setupDeck(reading);
+	signal.addEventListener("abort", () => {
+		panelMotion.cancel();
+		indexMotion.cancel();
+	});
+	setupDeck(reading, signal);
 }
+
+document.addEventListener("astro:page-load", setupReadingModes);
+document.addEventListener("astro:before-swap", () => readingController?.abort());
+setupReadingModes();
 
 type Pile = "need" | "know" | "saved";
 type Review = Pile | "all";
 type Action = Pile | "reveal";
 
-function setupDeck(root: HTMLElement) {
+function setupDeck(root: HTMLElement, signal: AbortSignal) {
 	const deck = root.querySelector<HTMLElement>("[data-flashcards]")!;
 	const cards = [...deck.querySelectorAll<HTMLElement>("[data-card]")];
 	if (!cards.length) return;
@@ -113,6 +147,20 @@ function setupDeck(root: HTMLElement) {
 	const finish = deck.querySelector<HTMLElement>("[data-deck-finish]")!;
 	const undo = deck.querySelector<HTMLButtonElement>("[data-deck-undo]")!;
 	const revealLabel = deck.querySelector<HTMLElement>("[data-reveal-label]")!;
+	const stageMotion = contentMotion(deck.querySelector<HTMLElement>(".reading-card-stage")!);
+	let exitAnimation: Animation | undefined;
+	let placementRevision = 0;
+	let placing = false;
+	const cancelPlacement = () => {
+		placementRevision++;
+		exitAnimation?.cancel();
+		exitAnimation = undefined;
+		placing = false;
+	};
+	signal.addEventListener("abort", () => {
+		cancelPlacement();
+		stageMotion.cancel();
+	});
 	const history: { id: string; previous: Pile | undefined }[] = [];
 	let queue: HTMLElement[] = [];
 	let cursor = 0;
@@ -132,41 +180,47 @@ function setupDeck(root: HTMLElement) {
 			/* Storage is optional. */
 		}
 	};
-	const render = (focus = false) => {
-		cards.forEach((card) => {
-			card.hidden = card !== current();
-			card.style.removeProperty("transform");
-			card.querySelector<HTMLDetailsElement>("[data-card-answer]")!.open = false;
-		});
-		const complete = !current();
-		finish.hidden = !complete;
-		position.textContent = complete
-			? `${queue.length} of ${queue.length} cards sorted`
-			: `Card ${cursor + 1} of ${queue.length}`;
-		progress.max = Math.max(queue.length, 1);
-		progress.value = complete ? progress.max : cursor;
-		actions.forEach((button) => {
-			button.disabled = complete;
-		});
-		revealLabel.textContent = "Learn more";
-		undo.disabled = history.length === 0;
-		deck.querySelector<HTMLElement>("[data-deck-round]")!.textContent = resuming
-			? "Remaining cards"
-			: labels[review];
-		reviewButtons.forEach((button) => {
-			const pile = button.dataset.review as Review;
-			const total = [...statuses.values()].filter((value) => value === pile).length;
-			button.disabled = pile !== "all" && total === 0;
-			button.setAttribute("aria-pressed", String(pile === review));
-			const count = button.querySelector<HTMLElement>("[data-count]");
-			if (count) count.textContent = `(${total})`;
-		});
-		if (focus)
-			(current() ?? deck.querySelector<HTMLElement>("[data-deck-finish-title]"))?.focus({
-				preventScroll: true,
-			});
+	const render = (focus = false, animate = true) => {
+		stageMotion.update(
+			() => {
+				cards.forEach((card) => {
+					card.hidden = card !== current();
+					card.style.removeProperty("transform");
+					card.querySelector<HTMLDetailsElement>("[data-card-answer]")!.open = false;
+				});
+				const complete = !current();
+				finish.hidden = !complete;
+				position.textContent = complete
+					? `${queue.length} of ${queue.length} cards sorted`
+					: `Card ${cursor + 1} of ${queue.length}`;
+				progress.max = Math.max(queue.length, 1);
+				progress.value = complete ? progress.max : cursor;
+				actions.forEach((button) => {
+					button.disabled = complete;
+				});
+				revealLabel.textContent = "Learn more";
+				undo.disabled = history.length === 0;
+				deck.querySelector<HTMLElement>("[data-deck-round]")!.textContent = resuming
+					? "Remaining cards"
+					: labels[review];
+				reviewButtons.forEach((button) => {
+					const pile = button.dataset.review as Review;
+					const total = [...statuses.values()].filter((value) => value === pile).length;
+					button.disabled = pile !== "all" && total === 0;
+					button.setAttribute("aria-pressed", String(pile === review));
+					const count = button.querySelector<HTMLElement>("[data-count]");
+					if (count) count.textContent = `(${total})`;
+				});
+				if (focus)
+					(current() ?? deck.querySelector<HTMLElement>("[data-deck-finish-title]"))?.focus({
+						preventScroll: true,
+					});
+			},
+			{ animate, target: () => current() ?? finish },
+		);
 	};
-	const startRound = (pile: Review, resume = false) => {
+	const startRound = (pile: Review, resume = false, animate = true) => {
+		cancelPlacement();
 		review = pile;
 		resuming = resume;
 		queue = cards.filter((card) =>
@@ -184,24 +238,59 @@ function setupDeck(root: HTMLElement) {
 		}
 		cursor = 0;
 		history.length = 0;
-		render();
+		render(false, animate);
 		announcement.textContent = `Reviewing ${labels[pile].toLowerCase()}. ${queue.length} cards.`;
 	};
 	const act = (action: Action, focus = false) => {
 		const card = current();
-		if (!card) return;
+		if (!card || placing) return;
 		if (action === "reveal") {
 			const answer = card.querySelector<HTMLDetailsElement>("[data-card-answer]")!;
-			answer.open = !answer.open;
+			stageMotion.update(
+				() => {
+					answer.open = !answer.open;
+				},
+				{ target: () => answer },
+			);
 			return;
 		}
 		const id = card.dataset.cardId!;
 		history.push({ id, previous: statuses.get(id) });
 		statuses.set(id, action);
-		cursor++;
 		save();
-		render(focus || !current());
-		announcement.textContent = `${card.dataset.cardTitle} placed in ${labels[action]}.${current() ? ` Next: ${current()!.dataset.cardTitle}.` : " Round complete."}`;
+		placing = true;
+		const revision = ++placementRevision;
+		stageMotion.cancel();
+		const advance = () => {
+			if (placementRevision !== revision) return;
+			exitAnimation?.cancel();
+			exitAnimation = undefined;
+			cursor++;
+			placing = false;
+			render(focus || !current());
+			announcement.textContent = `${card.dataset.cardTitle} placed in ${labels[action]}.${current() ? ` Next: ${current()!.dataset.cardTitle}.` : " Round complete."}`;
+		};
+		if (
+			matchMedia("(prefers-reduced-motion: reduce)").matches ||
+			typeof card.animate !== "function"
+		) {
+			advance();
+			return;
+		}
+		const transform =
+			action === "need"
+				? "translate3d(-115%, 12px, 0) rotate(-10deg)"
+				: action === "know"
+					? "translate3d(115%, 12px, 0) rotate(10deg)"
+					: "translate3d(0, 110%, 0) rotate(2deg)";
+		exitAnimation = card.animate(
+			[
+				{ transform: card.style.transform || "translate3d(0, 0, 0)", opacity: 1 },
+				{ transform, opacity: 0 },
+			],
+			{ duration: 270, easing: "cubic-bezier(.35,.75,.35,1)", fill: "forwards" },
+		);
+		void exitAnimation.finished.then(advance, advance);
 	};
 	deck.querySelectorAll<HTMLElement>("[data-deck-controls]").forEach((control) => {
 		control.hidden = false;
@@ -222,15 +311,21 @@ function setupDeck(root: HTMLElement) {
 	undo.addEventListener("click", () => {
 		const last = history.pop();
 		if (!last) return;
+		const pending = placing;
+		cancelPlacement();
 		if (last.previous) statuses.set(last.id, last.previous);
 		else statuses.delete(last.id);
-		cursor = Math.max(0, cursor - 1);
+		if (!pending) cursor = Math.max(0, cursor - 1);
 		save();
 		render();
 		announcement.textContent = "Last card restored.";
 	});
 	cards.forEach((card) => {
 		const answer = card.querySelector<HTMLDetailsElement>("[data-card-answer]")!;
+		answer.querySelector("summary")!.addEventListener("click", (event) => {
+			event.preventDefault();
+			act("reveal");
+		});
 		answer.addEventListener("toggle", () => {
 			if (card === current()) revealLabel.textContent = answer.open ? "Hide note" : "Learn more";
 		});
@@ -254,6 +349,8 @@ function setupDeck(root: HTMLElement) {
 		let pointer: { id: number; x: number; y: number; swipe: boolean } | undefined;
 		card.addEventListener("pointerdown", (event) => {
 			if (
+				placing ||
+				card !== current() ||
 				!event.isPrimary ||
 				event.button !== 0 ||
 				(event.target as HTMLElement).closest("a, summary")
@@ -276,10 +373,14 @@ function setupDeck(root: HTMLElement) {
 			if (!pointer || pointer.id !== event.pointerId) return;
 			const x = event.clientX - pointer.x;
 			const y = event.clientY - pointer.y;
-			card.style.removeProperty("transform");
-			if (pointer.swipe && Math.abs(x) > 60 && Math.abs(x) > Math.abs(y))
+			if (pointer.swipe && Math.abs(x) > 60 && Math.abs(x) > Math.abs(y)) {
 				act(x > 0 ? "know" : "need");
-			else if (Math.abs(y) > 60 && Math.abs(y) > Math.abs(x)) act(y > 0 ? "saved" : "reveal");
+			} else if (Math.abs(y) > 60 && Math.abs(y) > Math.abs(x)) {
+				act(y > 0 ? "saved" : "reveal");
+				if (y < 0) card.style.removeProperty("transform");
+			} else {
+				card.style.removeProperty("transform");
+			}
 			pointer = undefined;
 		});
 		card.addEventListener("pointercancel", () => {
@@ -287,10 +388,10 @@ function setupDeck(root: HTMLElement) {
 			card.style.removeProperty("transform");
 		});
 	});
-	startRound("all", statuses.size > 0 && statuses.size < cards.length);
+	startRound("all", statuses.size > 0 && statuses.size < cards.length, false);
 	if (statuses.size === cards.length) {
 		cursor = queue.length;
-		render();
+		render(false, false);
 	}
 }
 
