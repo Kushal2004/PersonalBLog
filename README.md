@@ -1,213 +1,156 @@
-<div align="center">
-  <img alt="Astro Cactus logo" src="https://github.com/chrismwilliams/astro-theme-cactus/assets/12715988/85aa0d3c-ef6a-44e2-954d-ef035b4f4315" width="70" />
-</div>
-<h1 align="center">
-  Astro Cactus
-</h1>
+# Kushal's Personal Blog
 
-Astro Cactus is a simple opinionated starter built with the Astro framework. Use it to create an easy-to-use blog or website.
+A static personal blog with three ways to explore the same posts: a searchable field index, ordered book chapters, and flashcards. Built with Astro, Markdown/MDX, Tailwind CSS, and Pagefind.
 
-## Table Of Contents
+The site keeps the Astro Cactus layout, with Geist fonts, neutral light/dark colors, and smooth transitions that respect reduced-motion preferences.
 
-1. [Key Features](#key-features)
-2. [Demo](#demo-💻)
-3. [Quick start](#quick-start)
-4. [Preview](#preview)
-5. [Commands](#commands)
-6. [Configure](#configure)
-7. [Updating](#updating)
-8. [Adding Posts](#adding-posts)
-   - [Frontmatter](#frontmatter)
-   - [Frontmatter Snippet](#frontmatter-snippet)
-9. [Pagefind search](#pagefind-search)
-10. [Analytics](#analytics)
-11. [Deploy](#deploy)
-12. [Acknowledgment](#acknowledgment)
+## Features
 
-## Key Features
+- **Field index:** search titles, summaries, and tags; filter by topic; sort by reading order or title.
+- **Book chapters:** read posts in sequence, group chapters into sections, and follow previous/next links.
+- **Flashcards:** reveal notes, swipe or use keyboard controls, sort into learning piles, shuffle, undo, and review saved cards.
+- **Site search:** press `/` outside a text field to search published posts; press `Escape` to close search.
+- **Blog essentials:** topic archives, pagination, article tables of contents, RSS, a sitemap, generated social images, and highlighted code blocks.
 
-- Astro v4 Fast 🚀
-- TailwindCSS Utility classes
-- Accessible, semantic HTML markup
-- Responsive & SEO-friendly
-- Dark / Light mode, using Tailwind and CSS variables
-- [Astro Assets Integration](https://docs.astro.build/en/guides/assets/) for optimised images
-- MD & [MDX](https://docs.astro.build/en/guides/markdown-content/#mdx-only-features) posts
-- [Satori](https://github.com/vercel/satori) for creating open graph png images
-- Pagination
-- [Automatic RSS feed](https://docs.astro.build/en/guides/rss)
-- [Webmentions](https://webmention.io/)
-- Auto-generated [sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/)
-- [Pagefind](https://pagefind.app/) static search library integration
-- [Astro Icon](https://github.com/natemoo-re/astro-icon) svg icon component
-- [Expressive Code](https://expressive-code.com/) source code and syntax highlighter
+## Run locally
 
-## Fonts and colors
+Use **Node.js 22** and **pnpm 8.15.9**, as declared in `package.json`. If pnpm is unavailable, use `npx --yes pnpm@8.15.9` in place of `pnpm` in the commands below.
 
-Typography and foreground/background colors follow [Kushal's original blog](https://kushal-blog.vercel.app/).
-The existing page layout, reading-mode cards, index grid, navigation, and article sidebar are preserved.
-Geist and Geist Mono are bundled in `public/fonts/` under the included SIL Open Font License.
-The typography and palette are isolated in `src/styles/typography.css`.
+```sh
+git clone https://github.com/Kushal2004/PersonalBLog.git
+cd PersonalBLog
+pnpm install --frozen-lockfile
+pnpm dev --host 127.0.0.1 --port 4325
+```
 
-## Reading modes
+Open [http://127.0.0.1:4325/](http://127.0.0.1:4325/).
 
-The home page offers three views of the same published posts, using the existing Cactus theme:
+Site search is available in a production build. To test it locally:
 
-- **Field index**: search terms and summaries, filter by tag, and sort by reading order or title.
-- **Book chapters**: browse the reading sequence and follow previous/next links at the end of a post.
-- **Flashcards**: reveal notes, swipe or use arrow keys to sort cards, review individual piles, shuffle, undo, and save progress on the current device.
+```sh
+pnpm check
+pnpm build
+pnpm preview --host 127.0.0.1 --port 4325
+```
 
-Posts appear automatically. Drafts are excluded from all three views, including during development.
-By default, chapters run from oldest to newest, and cards use the post title and description.
-Use this optional frontmatter to customize a post's reading entry:
+`pnpm build` runs Astro and then the `postbuild` Pagefind indexer. The checked-in `.npmrc` enables pnpm's pre/post scripts. Deploy the complete `dist/` directory, including `dist/pagefind/`.
 
-```yaml
+| Command          | Purpose                                                 |
+| ---------------- | ------------------------------------------------------- |
+| `pnpm dev`       | Start the development server.                           |
+| `pnpm check`     | Check Astro and TypeScript files.                       |
+| `pnpm build`     | Generate the static site and search index in `dist/`.   |
+| `pnpm postbuild` | Rebuild the search index after the site has been built. |
+| `pnpm preview`   | Serve the production build locally.                     |
+| `pnpm format`    | Format project files.                                   |
+
+## Publish a post
+
+Add a `.md` or `.mdx` file under `src/content/post/`. For example, `src/content/post/markdown-basics.md` becomes `/posts/markdown-basics/`.
+
+```md
+---
+title: "Markdown basics"
+description: "A practical introduction to writing headings, links, and lists in Markdown documents."
+publishDate: "2026-01-01"
+tags: ["markdown", "writing"]
+draft: false
 reading:
   order: 1
   section: "Getting started"
   term: "Markdown"
   question: "How do you format a heading?"
-  summary: "Start a line with one or more # characters, followed by a space and the heading."
+  summary: "Start a line with one or more # characters, then a space and the heading."
+---
+
+## Headings
+
+Use two hash characters followed by a space for a section heading.
 ```
-
-Explicit `order` values come first. Posts without an order follow by publication date.
-Give consecutive chapters the same `section` to group them together.
-The field index and chapters also work without JavaScript; interactive study requires JavaScript.
-Reading preferences and flashcard piles use browser local storage and remain usable if storage is unavailable.
-
-Post navigation and reading controls use short transitions that respect reduced-motion preferences.
-Press `/` while the page has keyboard focus to open indexed search; press `Escape` to close it.
-The shortcut leaves text fields alone so typing a slash does not interrupt a search or other input.
-
-For this checkout's lockfile, use pnpm 8 (for example `npx pnpm@8.15.9 install --frozen-lockfile`).
-Run `pnpm check`, `pnpm build`, then `pnpm preview --host 127.0.0.1 --port 4325`
-to review the production build locally at <http://127.0.0.1:4325/> before deployment.
-
-## Demo 💻
-
-Check out the [Demo](https://astro-cactus.chriswilliams.dev/), hosted on Netlify
-
-## Quick start
-
-[Create a new repo](https://github.com/chrismwilliams/astro-theme-cactus/generate) from this template.
-
-```bash
-# npm 7+
-npm create astro@latest -- --template chrismwilliams/astro-theme-cactus
-
-# pnpm
-pnpm dlx create-astro --template chrismwilliams/astro-theme-cactus
-```
-
-[![Deploy with Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/chrismwilliams/astro-theme-cactus) [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fchrismwilliams%2Fastro-theme-cactus&project-name=astro-theme-cactus)
-
-## Preview
-
-![Astro Theme Cactus in a light theme mode](https://github.com/chrismwilliams/astro-theme-cactus/assets/12715988/84c89d42-4525-4674-b10c-6d6ebdc06382)
-
-![Astro Theme Cactus in a dark theme mode](https://github.com/chrismwilliams/astro-theme-cactus/assets/12715988/e0e575e2-445f-4c2d-a812-b5b53d2d9031)
-
-## Commands
-
-Replace pnpm with your choice of npm / yarn
-
-| Command          | Action                                                         |
-| :--------------- | :------------------------------------------------------------- |
-| `pnpm install`   | Installs dependencies                                          |
-| `pnpm dev`       | Starts local dev server at `localhost:3000`                    |
-| `pnpm build`     | Build your production site to `./dist/`                        |
-| `pnpm postbuild` | Pagefind script to build the static search of your blog posts  |
-| `pnpm preview`   | Preview your build locally, before deploying                   |
-| `pnpm sync`      | Generate types based on your config in `src/content/config.ts` |
-
-## Configure
-
-- Edit the config file `src/site.config.ts` for basic site meta data
-  - Read [this post](http://astro-cactus.chriswilliams.dev/posts/webmentions/) for adding webmentions to your site, otherwise set `siteConfig.webmentions.link` to an empty value.
-- Update file `astro.config.ts` site property with your own domain.
-- Replace & update files within the `/public` folder:
-  - favicon.ico & other social icons
-  - robots.txt - update the Sitemap url to your own domain
-  - manifest.webmanifest
-- Modify file `src/styles/global.css` with your own light and dark styles.
-  - You can also modify the theme(s) for markdown code blocks generated by [Expressive Code](https://expressive-code.com). Astro Cactus has both a dark (dracula) and light (github-light) theme, which can be found in `src/site.config.ts`. You can find more theme(s) and options [here](https://expressive-code.com/guides/themes/#available-themes).
-- Edit social links in `src/components/SocialList.astro` to add/replace your media profile. Icons can be found @ [icones.js.org](https://icones.js.org/), per [Astro Icon's instructions](https://www.astroicon.dev/guides/customization/#find-an-icon-set).
-- Create / edit posts for your blog within `src/content/post/` with .md/mdx file(s). See [below](#adding-posts) for more details.
-- OG Image:
-  - If you would like to change the style of the generated image the Satori library creates, open up `src/pages/og-image/[slug].png.ts` to the markup function where you can edit the html/tailwind-classes as necessary. You can also use this [satori playground](https://og-playground.vercel.app/) to aid your design.
-  - If you would like to generate svg og images rather than the default .png ones, you will need to remove the @resvg/resvg-js library, and return the svg within the body of the get function from the file `src/pages/og-image/[slug].png.ts`.
-  - You can also create your own og images and skip satori generating it for you by adding an ogImage property in the frontmatter with a link to the asset, an example can be found in `src/content/post/social-image.md`. More info on frontmatter can be found [here](#frontmatter)
-- Optional:
-  - Fonts: This theme sets the body element to the font family `font-mono`, located in the global css file `src/styles/global.css`. You can change fonts by removing the variant `font-mono`, after which TailwindCSS will default to the `font-sans` [font family stack](https://tailwindcss.com/docs/font-family).
-
-## Updating
-
-If you've forked the template, you can [sync the fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork) with your own project, remembering to not click Discard Changes as you will lose your own.
-
-If you have a template repository, you can add this template as a remote, as discussed [here](https://stackoverflow.com/questions/56577184/github-pull-changes-from-a-template-repository).
-
-## Adding posts
-
-This theme utilises [Content Collections](https://docs.astro.build/en/guides/content-collections/) to organise Markdown and/or MDX files, as well as type-checking frontmatter with a schema -> `src/content/config.ts`.
-
-Adding a post is as simple as adding your .md(x) files to the `src/content/post` folder, the filename of which will be used as the slug/url. The posts included with this template are there as an example of how to structure your frontmatter. Additionally, the [Astro docs](https://docs.astro.build/en/guides/markdown-content/) has a detailed section on markdown pages.
 
 ### Frontmatter
 
-| Property (\* required) | Description                                                                                                                                                                                                                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| title \*               | Self explanatory. Used as the text link to the post, the h1 on the posts' page, and the pages title property. Has a max length of 60 chars, set in `src/content/config.ts`                                                                                                                                   |
-| description \*         | Similar to above, used as the seo description property. Has a min length of 50 and a max length of 160 chars, set in the post schema.                                                                                                                                                                        |
-| publishDate \*         | Again pretty simple. To change the date format/locale, currently **en-GB**, update the date option in `src/site.config.ts`. Note you can also pass additional options to the component `<FormattedDate>` if required.                                                                                        |
-| updatedDate            | This is an optional date representing when a post has been updated, in the same format as the publishDate. Note that by providing this field, the sorting function, found in `src/utils/post.ts`, `sortMDByDate` will order by this field rather than its published date.                                    |
-| tags                   | Tags are optional with any created post. Any new tag(s) will be shown in `yourdomain.com/posts` & `yourdomain.com/tags`, and generate the page(s) `yourdomain.com/tags/[yourTag]`                                                                                                                            |
-| coverImage             | This is an optional object that will add a cover image to the top of a post. Include both a `src`: "_path-to-image_" and `alt`: "_image alt_". You can view an example in `src/content/post/cover-image.md`.                                                                                                 |
-| ogImage                | This is an optional property. An OG Image will be generated automatically for every post where this property **isn't** provided. If you would like to create your own for a specific post, include this property and a link to your image, the theme will then skip automatically generating one.            |
-| draft                  | This is an optional property as it is set to false by default in the schema. By adding true, the post will be filtered out of the production build in a number of places, inc. getAllPosts() calls, og-images, rss feeds, and generated page[s]. You can view an example in `src/content/post/draft-post.md` |
+| Field         | Required | Description                                                          |
+| ------------- | -------- | -------------------------------------------------------------------- |
+| `title`       | Yes      | Post title, up to 60 characters.                                     |
+| `description` | Yes      | Summary between 50 and 160 characters.                               |
+| `publishDate` | Yes      | Publication date; an ISO date string is recommended.                 |
+| `updatedDate` | No       | Date string shown when a post is updated.                            |
+| `tags`        | No       | Topic names; duplicates are removed and names are lowercased.        |
+| `draft`       | No       | Defaults to `false`. Set `true` to exclude the post from production. |
+| `coverImage`  | No       | An object with an image `src` and descriptive `alt` text.            |
+| `ogImage`     | No       | Custom social-image path or URL; otherwise an image is generated.    |
+| `reading`     | No       | Customize the index entry, chapter position, and flashcard.          |
 
-### Frontmatter snippet
+The complete schema is in [`src/content/config.ts`](src/content/config.ts).
 
-Astro Cactus includes a helpful VSCode snippet which creates a frontmatter 'stub' for a blog post, found here -> `.vscode/post.code-snippets`. Start typing the word `frontmatter` on your newly created .md(x) file to trigger it. Visual Studio Code snippets appear in IntelliSense via (⌃Space) on mac, (Ctrl+Space) on windows.
+### Reading order and flashcards
 
-## Pagefind search
+All three reading modes use the same published posts. Drafts are excluded from these modes even during development.
 
-This integration brings a static search feature for searching blog posts. In its current form, pagefind only works once the site has been built. This theme adds a postbuild script that should be run after Astro has built the site. You can preview locally by running both build && postbuild.
+- `reading.order`: a positive integer; explicitly ordered posts come first.
+- `reading.section`: a chapter-group label. Give consecutive chapters the same label to group them together.
+- `reading.term`: the index term and flashcard title; defaults to the post title.
+- `reading.question`: the flashcard prompt; defaults to a general recall question.
+- `reading.summary`: the index summary and revealed note; defaults to the post description.
 
-Search results only includes blog posts. If you would like to include other/all your pages, remove/re-locate the attribute `data-pagefind-body` to the article tag found in `src/layouts/BlogPost.astro`.
+Posts without an explicit order follow oldest to newest by publication date, with the slug used to break ties. The regular blog archive is newest first and can optionally sort by updated date through `siteConfig.sortPostsByUpdatedDate`.
 
-It also allows you to filter posts by tags added in the frontmatter of blog posts. If you would rather remove this, remove the data attribute `data-pagefind-filter="tag"` from the link in `src/components/blog/Hero.astro`.
+When a flashcard itself has focus, use **Left** for “Need to learn,” **Right** for “Known,” **Down** for “Saved,” and **Up**, **Space**, or **Enter** to reveal the note. Touch swipes and the visible buttons provide the same actions.
 
-If you would rather not include this integration, simply remove the component `src/components/Search.astro`, and uninstall both `@pagefind/default-ui` & `pagefind` from package.json. You will also need to remove the postbuild script from here as well.
+Commit and push new posts, then redeploy the site. A connected Vercel project can rebuild automatically after each push.
 
-You can reduce the initial css payload of your css, as demonstrated [here](https://github.com/chrismwilliams/astro-theme-cactus/pull/145#issue-1943779868), by lazy loading the web components styles.
+## Progress and storage
 
-## Analytics
+The app is static and uses browser `localStorage`; it does not require a database or backend.
 
-You may want to track the number of visitors you receive to your blog/website in order to understand trends and popular posts/pages you've created. There are a number of providers out there one could use, including web hosts such as [vercel](https://vercel.com/analytics), [netlify](https://www.netlify.com/products/analytics/), and [cloudflare](https://www.cloudflare.com/web-analytics/).
+| Storage key                     | Saved data                                      |
+| ------------------------------- | ----------------------------------------------- |
+| `personal-blog-reading-view-v1` | Selected reading mode.                          |
+| `personal-blog-flashcards-v1`   | Each post's flashcard pile, keyed by post slug. |
+| `theme`                         | Light/dark preference.                          |
 
-This theme/template doesn't include a specific solution due to there being a number of use cases and/or options which some people may or may not use.
+Progress is specific to the browser and site origin. It does **not** sync between devices, browsers, or deployment domains. Clearing site data removes saved progress. If storage is unavailable, the reading controls continue to work for the current session.
 
-You may be asked to included a snippet inside the **HEAD** tag of your website when setting it up, which can be found in `src/layouts/Base.astro`. Alternatively, you could add the snippet in `src/components/BaseHead.astro`.
+The index and chapters also work without JavaScript. Interactive flashcards, site search, and saved preferences require JavaScript.
 
-## Deploy
+## Customize
 
-For Vercel, import `Kushal2004/PersonalBLog` and keep the repository root as the
-project root. The checked-in `vercel.json` builds the static site and Pagefind search
-with the pinned pnpm 8 lockfile. The project uses Node.js 22.
+| File or directory                                                    | What it controls                                                   |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [`src/site.config.ts`](src/site.config.ts)                           | Site metadata, navigation links, date formatting, and code themes. |
+| [`src/styles/typography.css`](src/styles/typography.css)             | Geist fonts, text formatting, and foreground/background colors.    |
+| [`src/styles/global.css`](src/styles/global.css)                     | Base page layout.                                                  |
+| [`src/styles/reading.css`](src/styles/reading.css)                   | Reading cards, index grid, chapters, and flashcard layouts.        |
+| [`src/styles/code-theme.ts`](src/styles/code-theme.ts)               | Light/dark syntax-highlighting colors.                             |
+| [`src/components/SocialList.astro`](src/components/SocialList.astro) | Social profile links.                                              |
+| [`src/content/post/`](src/content/post/)                             | Markdown/MDX posts and their local assets.                         |
+| [`public/`](public/)                                                 | Favicons, app icons, fonts, and static assets.                     |
 
-Connect the `main` branch as production so publishing a new post to GitHub
-automatically rebuilds the browser site. Set `SITE_URL` in Vercel only when using a
-custom canonical domain; otherwise the Vercel project domain is used automatically
-for canonical links, the sitemap, and `robots.txt`.
+The repository includes example posts and starter copy that can be replaced with personal content. Webmentions are optional and are currently unconfigured.
 
-[Astro docs](https://docs.astro.build/en/guides/deploy/) has a great section and breakdown of how to deploy your own Astro site on various platforms and their idiosyncrasies.
+## Deploy to Vercel
 
-By default the site will be built (see [Commands](#commands) section above) to a `/dist` directory.
+Import [`Kushal2004/PersonalBLog`](https://github.com/Kushal2004/PersonalBLog) into your Vercel account and use these settings:
 
-## Acknowledgment
+| Setting          | Value                            |
+| ---------------- | -------------------------------- |
+| Framework preset | Astro                            |
+| Root directory   | Repository root                  |
+| Node.js version  | 22.x                             |
+| Install command  | `pnpm install --frozen-lockfile` |
+| Build command    | `pnpm build`                     |
+| Output directory | `dist`                           |
 
-This theme was inspired by [Hexo Theme Cactus](https://github.com/probberechts/hexo-theme-cactus)
+These build settings are checked into [`vercel.json`](vercel.json), and `package.json` pins pnpm 8.15.9. Connect `main` as the production branch to publish future pushes automatically.
 
-## License
+No runtime secrets or database configuration are required. Optionally set `SITE_URL` to the final public URL, such as `https://your-blog.vercel.app`, for canonical links, the sitemap, RSS, and `robots.txt`. Otherwise the build uses Vercel's production domain, then its deployment domain; local builds fall back to `http://localhost:4325`.
 
-MIT
+Vercel credentials and local environment files belong outside Git. `.env*` and `.vercel/` are ignored by this repository.
+
+## Credits and licenses
+
+- Based on [Astro Cactus](https://github.com/chrismwilliams/astro-theme-cactus), under the [MIT license](LICENSE).
+- Reading experiences inspired by [FDE101](https://github.com/ajaypv/fde101).
+- Typography and neutral colors follow [Kushal's original blog](https://kushal-blog.vercel.app/).
+- Geist and Geist Mono are bundled under the [SIL Open Font License](public/fonts/OFL.txt).
